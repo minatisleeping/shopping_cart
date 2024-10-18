@@ -7,13 +7,13 @@ const userRoute = express.Router()
 userRoute.use(
   (req, res, next) => {
     console.log('Time' + Date.now())
-    // next()
-    res.status(400).json({ message: 'Not allowed!' })
-    console.log('Ahihi')
+    return next()
+    // res.status(400).json({ message: 'Not allowed!' })
+    // console.log('Ahihi')
   },
   (req, res, next) => {
     console.log('Time 2' + Date.now())
-    next()
+    return next()
   },
 )
 

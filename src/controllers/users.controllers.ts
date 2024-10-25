@@ -5,7 +5,9 @@
 
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { RegisterReqBody } from '~/models/requests/users.request';
 import usersService from '~/services/users.services';
+import { ParamsDictionary } from 'express-serve-static-core';
 
 export const loginController = (req: Request, res: Response) => {
   const { email, password } = req.body
@@ -24,15 +26,27 @@ export const loginController = (req: Request, res: Response) => {
   }
 }
 
-export const registerController = async (req: Request, res: Response) => {
-  const { email, password } = req.body
-  const payload: {
-    email: string,
-    password: string 
-  } = { email, password }
+export const registerController = async (
+  req: Request<ParamsDictionary, any, RegisterReqBody>,
+  res: Response
+) => {
+  const { email } = req.body as RegisterReqBody
   
   try {
-    const result = await usersService.register(payload)
+    // check email đã tồn tại chưa
+    const isEmailExist = await usersService.checkEmailExist(email)
+
+    if (isEmailExist) {
+      // throw new Error('Email already exists!')
+      const customError = new Error('Email already exists!')
+      // chỉnh bộ cờ của 1 object - descriptor properties
+      Object.defineProperty(customError, 'message', {
+        enumerable: true,
+      })
+      throw customError
+    }
+
+    const result = await usersService.register(req.body)
 
     res.status(StatusCodes.CREATED).json({
       message: 'Register success!',

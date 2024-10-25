@@ -1,15 +1,23 @@
 import express from 'express'
 import { loginController, registerController } from '~/controllers/users.controllers'
-import { loginValidator } from '~/middlewares/users.middlewares'
+import { loginValidator, registerValidator } from '~/middlewares/users.middlewares'
 
-// tạo userRoute
 const userRoute = express.Router()
 
-// http://localhost:3000/users/login
 userRoute.post('/login', loginValidator, loginController)
 
-// http://localhost:3000/users/register
-userRoute.post('/register', registerController)
-
+/**
+ ** Description: Register new user
+ * Route: /register
+ * Method: POST
+ * Body: {
+    name: string,
+    email: string,
+    password: string,
+    confirm_password: string,
+    date_of_birth: string // string nhưng có dạng ISO8601
+   }
+ */
+userRoute.post('/register', registerValidator, registerController)
 
 export default userRoute

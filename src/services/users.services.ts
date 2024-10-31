@@ -8,6 +8,8 @@ import { env } from '~/environments/environments'
 import { ErrorWithStatus } from '~/models/Errors'
 import { StatusCodes } from 'http-status-codes'
 import { USERS_MESSAGES } from '~/constants/messages'
+import { ObjectId } from 'mongodb'
+import RefreshToken from '~/models/schemas/RefreshToken.schema.ts'
 
 class UsersService {
   private signAccessToken(user_id: string) {
@@ -47,8 +49,16 @@ class UsersService {
     )
 
     const user_id = result.insertedId.toString()
+    const tokens =  await this.signTokens(user_id)
 
-    return await this.signTokens(user_id)
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: tokens.refreshToken
+      })
+    )
+
+    return tokens
   }
 
   async login({ email, password }: { email: string, password: string }) {
@@ -66,7 +76,17 @@ class UsersService {
     
     const user_id = user._id.toString()
 
-    return await this.signTokens(user_id)
+    const tokens =  await this.signTokens(user_id)
+
+    // lưu refresh token vào db
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: tokens.refreshToken
+      })
+    )
+
+    return tokens
   }
 }
 

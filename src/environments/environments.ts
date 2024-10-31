@@ -1,12 +1,16 @@
 import 'dotenv/config'
 
 export const env = {
-  DB_USERNAME: process.env.DB_USERNAME,
-  DB_PASSWORD: process.env.DB_PASSWORD,
-  DB_NAME: process.env.DB_NAME,
-  DB_USERS_COLLECTION: process.env.DB_USERS_COLLECTION,
+  DB_USERNAME         : process.env.DB_USERNAME         as string,
+  DB_PASSWORD         : process.env.DB_PASSWORD         as string,
+  DB_NAME             : process.env.DB_NAME             as string,
+  DB_USERS_COLLECTION : process.env.DB_USERS_COLLECTION as string,
 
-  PASSWORD_SECRET: process.env.PASSWORD_SECRET,
+  // JWT
+  PASSWORD_SECRET     : process.env.PASSWORD_SECRET     as string,
+  JWT_SECRET          : process.env.JWT_SECRET          as string,
+  ACCESS_TOKEN_LIFE   : process.env.ACCESS_TOKEN_LIFE   as string,
+  REFRESH_TOKEN_LIFE  : process.env.REFRESH_TOKEN_LIFE  as string,
 
-  PORT: process.env.PORT,
+  PORT                : process.env.PORT                as string,
 } as const

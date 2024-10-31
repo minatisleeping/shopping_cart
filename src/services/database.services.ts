@@ -1,6 +1,7 @@
 
 import { Collection, Db, MongoClient } from 'mongodb'
 import { env } from '~/environments/environments'
+import RefreshToken from '~/models/schemas/RefreshToken.schema.ts'
 import User from '~/models/schemas/User.schema'
 
 
@@ -25,9 +26,12 @@ class DatabaseServices {
     }
   }
 
-  get users(): Collection<User> { //accessor property
+  get users(): Collection<User> {
     return this.db.collection(env.DB_USERS_COLLECTION as string)
-    //vào db lấy ra collection users, và vì chuỗi truyền vào có thể là undefined nên mình phải rằng buộc nó là string 'thử xóa as string để thấy lỗi'
+  }
+
+  get refreshTokens(): Collection<RefreshToken> {
+    return this.db.collection(env.DB_REFRESH_TOKENS_COLLECTION as string)
   }
 }
 

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
+import { USERS_MESSAGES } from '~/constants/messages'
 import { validate } from '~/utils/validation'
 
 export const loginValidator = (req: Request, res: Response, next: NextFunction ) => {
@@ -20,25 +21,25 @@ export const loginValidator = (req: Request, res: Response, next: NextFunction )
 export const registerValidator = validate(
   checkSchema({
     name: {
-      notEmpty: { errorMessage: 'Name is required!' },
-      isString: { errorMessage: 'Name must be a string!' },
+      notEmpty: { errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED },
+      isString: { errorMessage: USERS_MESSAGES.NAME_MUST_BE_A_STRING },
       trim: true,
       isLength: {
         options: { min: 6, max: 100 },
-        errorMessage: 'Name must be between 6 and 100 characters!'
+        errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_6_TO_100
       }
     },
     email: {
-      notEmpty: { errorMessage: 'Email is required!' },
-      isEmail:  { errorMessage: 'Email is invalid!' },
+      notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED },
+      isEmail:  { errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID },
       trim: true,
     },
     password: {
-      notEmpty: { errorMessage: 'Password is required!' },
-      isString: { errorMessage: 'Password must be a string!' },
+      notEmpty: { errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED },
+      isString: { errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_A_STRING },
       isLength: {
         options: { min: 8, max: 50 },
-        errorMessage: 'Password must be between 6 and 100 characters!'
+        errorMessage: USERS_MESSAGES.PASSWORD_LENGTH_MUST_BE_FROM_8_TO_50
       },
       isStrongPassword: {
         options: {
@@ -49,15 +50,15 @@ export const registerValidator = validate(
           minSymbols: 1,
           returnScore: true,
         },
-        errorMessage: 'Password is too weak hehe!'
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
       }
     },
     confirm_password: {
-      notEmpty: { errorMessage: 'Confirm_password is required!' },
-      isString: { errorMessage: 'Confirm_password must be a string!' },
+      notEmpty: { errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED },
+      isString: { errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_A_STRING },
       isLength: {
         options: { min: 8, max: 50 },
-        errorMessage: 'Confirm_password must be between 6 and 100 characters!'
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_8_TO_50
       },
       isStrongPassword: {
         options: {
@@ -68,21 +69,21 @@ export const registerValidator = validate(
           minSymbols: 1,
           returnScore: true,
         },
-        errorMessage: 'Confirm_password is too weak hehe!'
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRONG
       },
       custom: {
-        options: (value, { req }) => { // value chỗ này là confirm_password lun nha Việt Đức =)))
-          if (value !== req.body.password) throw new Error('Confirm_password does not match password!')
+        options: (value, { req }) => {
+          if (value !== req.body.password) throw new Error('Confirm password is not match!')
           
           return true
         }
       }
     },
     date_of_birth: {
-      isISO8601: { // kiểm tra xem ngày tháng năm có đúng định dạng không
+      isISO8601: {
         options: {
-          strict: true, // strict = true thì phải đúng định dạng ngày tháng năm
-          strictSeparator: true // strictSeparator = true thì phải có T giữa ngày và giờ
+          strict: true,
+          strictSeparator: true
         }
       }
     }

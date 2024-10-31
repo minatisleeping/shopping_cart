@@ -5,7 +5,16 @@ import { wrapAsync } from '../utils/handlers';
 
 const userRoute = express.Router()
 
-userRoute.post('/login', loginValidator, loginController)
+/**
+ ** Description: Login
+ * Route: /login
+ * Method: POST
+ * Body: {
+    email: string,
+    password: string
+   }
+ */
+userRoute.post('/login', loginValidator, wrapAsync(loginController))
 
 /**
  ** Description: Register new user

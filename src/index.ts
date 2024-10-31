@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express'
 import userRoute from './routes/users.routers'
 import databaseService from './services/database.services'
 import { env } from './environments/environments'

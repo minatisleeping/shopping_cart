@@ -1,30 +1,24 @@
-// controller cũng chỉ là handler có nhiệm vụ tập kết dữ liệu từ user và phân phát các service 
-// đúng chỗ
-// controller là nơi tập kết và xử lý logic cho các dữ liệu nhận được trong
-// controller các dữ liệu đều phải clean
-
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { RegisterReqBody } from '~/models/requests/users.request';
+import { LoginReqBody, RegisterReqBody } from '~/models/requests/users.request';
 import usersService from '~/services/users.services';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ErrorWithStatus } from '~/models/Errors';
+import { USERS_MESSAGES } from '~/constants/messages';
 
-export const loginController = (req: Request, res: Response) => {
-  const { email, password } = req.body
+export const loginController = async (
+  req: Request<ParamsDictionary, any, LoginReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email, password } = req.body as LoginReqBody
+  
+  const result = await usersService.login({ email, password })
 
-  //mình xà lơ, vì mình chưa có database
-  //nếu có thì mình phải tách nhỏ xuống 1 tầng nữa là service thay vì viết ở đây
-
-  if (email === 'minat@gmail.com' && password === 'minat123') {
-    res.status(StatusCodes.OK).json({
-      message: 'Login success!'
-    })
-  } else {
-    res.status(StatusCodes.UNAUTHORIZED).json({
-      message: 'Invalid email or password!'
-    })
-  }
+  res.status(StatusCodes.OK).json({
+    message: USERS_MESSAGES.LOGIN_SUCCESS,
+    result
+  })
 }
 
 export const registerController = async (
@@ -33,20 +27,19 @@ export const registerController = async (
 ) => {
   const { email } = req.body as RegisterReqBody
   
-  // check email đã tồn tại chưa
   const isEmailExist = await usersService.checkEmailExist(email)
 
   if (isEmailExist) {
     throw new ErrorWithStatus({
       status: StatusCodes.UNPROCESSABLE_ENTITY,
-      message: 'Email already exists!'
+      message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS
     })
   }
           
   const result = await usersService.register(req.body)
 
   res.status(StatusCodes.CREATED).json({
-    message: 'Register success!',
+    message: USERS_MESSAGES.REGISTER_SUCCESS,
     result
   })
 }

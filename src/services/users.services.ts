@@ -5,6 +5,9 @@ import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enums'
 import { env } from '~/environments/environments'
+import { ErrorWithStatus } from '~/models/Errors'
+import { StatusCodes } from 'http-status-codes'
+import { USERS_MESSAGES } from '~/constants/messages'
 
 class UsersService {
   private signAccessToken(user_id: string) {
@@ -44,6 +47,24 @@ class UsersService {
     )
 
     const user_id = result.insertedId.toString()
+
+    return await this.signTokens(user_id)
+  }
+
+  async login({ email, password }: { email: string, password: string }) {
+    const user = await databaseService.users.findOne({
+      email,
+      password: hashPassword(password)
+    })
+
+    if (!user) {
+      throw new ErrorWithStatus({
+        status: StatusCodes.UNPROCESSABLE_ENTITY,
+        message: USERS_MESSAGES.EMAIL_OR_PASSWORD_IS_INVALID
+      })
+    }
+    
+    const user_id = user._id.toString()
 
     return await this.signTokens(user_id)
   }

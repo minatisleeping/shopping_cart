@@ -1,6 +1,6 @@
 import express, { Request } from 'express'
-import { loginController, logoutController, registerController } from '~/controllers/users.controllers'
-import { accessTokenValidator, loginValidator, refreshTokenValidator, registerValidator } from '~/middlewares/users.middlewares'
+import { forgotPasswordController, loginController, logoutController, registerController, resendVerifyEmailController, verifyEmailTokenController } from '~/controllers/users.controllers'
+import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator } from '~/middlewares/users.middlewares'
 import { wrapAsync } from '../utils/handlers';
 
 const userRoute = express.Router()
@@ -39,4 +39,28 @@ userRoute.post('/register', registerValidator, wrapAsync(registerController))
  */
 userRoute.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsync(logoutController))
 
+/**
+ ** Description: Verify email
+ *  Khi user nhấn vào link có trong email của họ thì email_verify_token sẽ được
+ * được gửi lên server thông qua req.query 
+ *  Route: /verify-email/?email_verify_token={email_verify_token}
+ *  Method: GET
+ */
+userRoute.get('/verify-email', emailVerifyTokenValidator, wrapAsync(verifyEmailTokenController))
+
+/**
+ ** Description: Resend verify email
+ *  User sẽ dùng chức năng này khi làm mất, lạc mail
+ * Flow mình làm: phải đăng nhập thì mới cho verify
+ *  Header: { Authorization: Bearer {token} }
+ *  Route: /verify-email/?email_verify_token={email_verify_token}
+ *  Method: POST
+ */
+userRoute.post('/resend-verify-email', accessTokenValidator, wrapAsync(resendVerifyEmailController))
+
+/**
+ ** Description: Forgot password
+
+ */
+userRoute.post('/forgot-password', forgotPasswordValidator, wrapAsync(forgotPasswordController))
 export default userRoute

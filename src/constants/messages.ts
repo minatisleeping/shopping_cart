@@ -40,4 +40,15 @@ export const USERS_MESSAGES = {
   REFRESH_TOKEN_IS_REQUIRED: 'Refresh token is required!',
   REFRESH_TOKEN_MUST_BE_A_STRING: 'Refresh token must be a string!',
   REFRESH_TOKEN_IS_INVALID: 'Refresh token is invalid!',
+
+  EMAIL_VERIFY_TOKEN_IS_REQUIRED: 'Email verify token is required!',
+  EMAIL_VERIFY_TOKEN_MUST_BE_A_STRING: 'Email verify token must be a string!',
+  EMAIL_VERIFY_SUCCESS: 'Email verify success!',
+  EMAIL_HAS_BEEN_BANNED: 'Email has been banned!',
+  EMAIL_HAS_BEEN_VERIFIED: 'Email has been verified!',
+  RESEND_EMAIL_VERIFY_SUCCESS: 'Resend email verify success!',
+
+  USER_NOT_FOUND: 'User not found!',
+
+  CHECK_EMAIL_TO_RESET_PASSWORD: 'Check email to reset password!',
 } as const;

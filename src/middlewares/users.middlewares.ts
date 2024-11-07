@@ -152,3 +152,40 @@ export const refreshTokenValidator = validate(
     }
   }, ['body'])
 )
+
+export const emailVerifyTokenValidator = validate(
+  checkSchema({
+    email_verify_token: {
+      trim: true,
+      notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED },
+      custom: {
+        options: async (value: string, { req }) => {
+          try {
+            const decoded_email_verify_token = await verifyToken({
+              token: value,
+              secretOrPublicKey: env.JWT_SECRET_EMAIL_VERIFY_TOKEN
+            }) as TokenPayload;
+            (req as Request).decoded_email_verify_token = decoded_email_verify_token
+          } catch (error) {
+            throw new ErrorWithStatus({
+              message: capitalize((error as JsonWebTokenError).message),
+              status: StatusCodes.UNAUTHORIZED,
+            })
+          }
+
+          return true
+        }
+      }
+    }
+  }, ['query'])
+)
+
+export const forgotPasswordValidator = validate(
+  checkSchema({
+    email: {
+      notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED },
+      isEmail:  { errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID },
+      trim: true,
+    },
+  })
+)

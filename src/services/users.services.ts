@@ -3,7 +3,7 @@ import databaseService from './database.services'
 import { RegisterReqBody } from '~/models/requests/Users.request'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enums'
+import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import { env } from '~/environments/environments'
 import { ErrorWithStatus } from '~/models/Errors'
 import { StatusCodes } from 'http-status-codes'
@@ -25,6 +25,22 @@ class UsersService {
       payload: { user_id, token_type: TokenType.RefreshToken },
       secretKey: env.JWT_SECRET_REFRESH_TOKEN,
       options: { expiresIn: env.REFRESH_TOKEN_LIFE }
+    })
+  }
+
+  private signEmailVerifyToken(user_id: string) {
+    return signToken({
+      payload: { user_id, token_type: TokenType.EmailVerificationToken },
+      secretKey: env.JWT_SECRET_EMAIL_VERIFY_TOKEN,
+      options: { expiresIn: env.EMAIL_VERIFY_TOKEN_EXPIRES_IN }
+    })
+  }
+
+  private signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payload: { user_id, token_type: TokenType.ForgotPasswordToken },
+      secretKey: env.JWT_SECRET_FORGOT_PASSWORD_TOKEN,
+      options: { expiresIn: env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN }
     })
   }
 
@@ -57,17 +73,49 @@ class UsersService {
     return refreshToken
   }
 
+  async checkEmailVerifyToken({ user_id, email_verify_token }: { user_id: string, email_verify_token: string }) {
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(user_id),
+      email_verify_token
+    })
+
+    if (!user) {
+      throw new ErrorWithStatus({
+        status: StatusCodes.NOT_FOUND,
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      })
+    }
+
+    return user
+  }
+
+  async findUserById(user_id: string) {
+    return await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  }
+
+  async findUserByEmail(email: string) {
+    return await databaseService.users.findOne({ email })
+  }
+
   async register(payload: RegisterReqBody) {
-    const result = await databaseService.users.insertOne(
+    const user_id = new ObjectId()
+    const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
+    
+    await databaseService.users.insertOne(
       new User({
+        _id: user_id,
+        email_verify_token,
         ...payload,
         password: hashPassword(payload.password),
         date_of_birth: new Date(payload.date_of_birth)
       })
     )
-
-    const user_id = result.insertedId.toString()
-    const tokens =  await this.signTokens(user_id)
+    
+    const tokens =  await this.signTokens(user_id.toString())
+    console.log(`
+      🚀 ~ Nội dung Email xác thực bao gôm:
+        http://localhost:3000/users/verify-email/?email_verify_token=${email_verify_token}
+    `)
 
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({
@@ -109,6 +157,63 @@ class UsersService {
 
   async logout(refresh_token: string) {
     return await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+  }
+
+  async verifyEmail(user_id: string) {
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      [{
+        $set: {
+          email_verify_token: '',
+          verify: UserVerifyStatus.Verified,
+          updated_at: '$$NOW'
+        }
+      }],
+    )
+
+    const tokens =  await this.signTokens(user_id)
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: tokens.refresh_token
+      })
+    )
+
+    return tokens
+  }
+
+  async resendVerifyEmail(user_id: string) {
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      [{ $set: { email_verify_token, updated_at: '$$NOW' } }],
+    )
+
+    console.log(`
+      🚀 ~ Nội dung Email xác thực bao gôm:
+        http://localhost:3000/users/verify-email/?email_verify_token=${email_verify_token}
+    `)
+  }
+
+  async forgotPassword(email: string) {
+    const user = await databaseService.users.findOne({ email })
+    
+    if (user) {
+      const user_id = user._id
+      const email_verify_token = await this.signForgotPasswordToken(user_id.toString())
+
+      await databaseService.users.updateOne(
+        { _id: user_id },
+        [{ $set: { email_verify_token, updated_at: '$$NOW' } }],
+      )
+
+      console.log(`
+        🚀 ~ Nội dung Email xác thực bao gôm:
+          http://localhost:8000/reset-password/?forgot_password_token=${email_verify_token}
+      `)
+    }
   }
 }
 

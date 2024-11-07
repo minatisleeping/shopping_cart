@@ -1,9 +1,7 @@
-// file lưu các định nghĩa về request
-
 import { JwtPayload } from 'jsonwebtoken'
 import { TokenType } from '~/constants/enums'
+import { ParsedQs } from 'qs'
 
-// kiểu register thì ngta phải gửi lên cái gì(giống DTO)
 export interface RegisterReqBody {
   name: string
   email: string
@@ -24,4 +22,12 @@ export interface TokenPayload extends JwtPayload {
 
 export interface LogoutReqBody {
   refresh_token: string
+}
+
+export interface ForgotPasswordReqBody {
+  email: string
+}
+
+export interface VerifyEmailReqQuery extends ParsedQs {
+  email_verify_token: string
 }

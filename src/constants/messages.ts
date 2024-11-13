@@ -32,6 +32,8 @@ export const USERS_MESSAGES = {
   REGISTER_SUCCESS: 'Register success!',
   LOGIN_SUCCESS: 'Login success!',
   LOGOUT_SUCCESS: 'Logout success!',
+  GET_PROFILE_SUCCESS: 'Get profile success!',
+  UPDATE_PROFILE_SUCCESS: 'Update profile success!',
 
   //token
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required!',
@@ -54,6 +56,19 @@ export const USERS_MESSAGES = {
   RESET_PASSWORD_SUCCESS: 'Reset password success!',
 
   USER_NOT_FOUND: 'User not found!',
+  USER_NOT_VERIFIED: 'User not verified!',
 
   CHECK_EMAIL_TO_RESET_PASSWORD: 'Check email to reset password!',
+
+  BIO_MUST_BE_A_STRING: 'Bio must be a string!',
+  BIO_LENGTH_MUST_BE_LESS_THAN_200: 'Bio length must be less than 200!',
+  LOCATION_MUST_BE_A_STRING: 'Location must be a string!',
+  LOCATION_LENGTH_MUST_BE_LESS_THAN_200: 'Location length must be less than 200!',
+  WEBSITE_MUST_BE_A_STRING: 'Website must be a string!',
+  WEBSITE_LENGTH_MUST_BE_LESS_THAN_200: 'Website length must be less than 200!',
+  USERNAME_MUST_BE_A_STRING: 'Username must be a string!',
+  USERNAME_LENGTH_MUST_BE_LESS_THAN_50: 'Username length must be less than 50!',
+  USERNAME_ALREADY_EXISTS: 'Username already exists!',
+  IMAGE_URL_MUST_BE_A_STRING: 'Image url must be a string',
+  IMAGE_URL_LENGTH_MUST_BE_LESS_THAN_400: 'Image url length must be less than 400',
 } as const;

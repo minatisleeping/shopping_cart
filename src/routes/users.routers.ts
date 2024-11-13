@@ -1,6 +1,6 @@
 import express, { Request } from 'express'
-import { forgotPasswordController, loginController, logoutController, registerController, resendVerifyEmailController, resetPasswordController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
-import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidator } from '~/middlewares/users.middlewares'
+import { forgotPasswordController, getMeController, loginController, logoutController, registerController, resendVerifyEmailController, resetPasswordController, updateMeController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
+import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidator, updateMeValidator } from '~/middlewares/users.middlewares'
 import { wrapAsync } from '../utils/handlers';
 
 const userRoute = express.Router()
@@ -83,5 +83,29 @@ userRoute.post('/verify-forgot-password-token', forgotPasswordTokenValidator, wr
  * }
  */
 userRoute.post('/reset-password', forgotPasswordTokenValidator, resetPasswordValidator, wrapAsync(resetPasswordController))
+
+/**
+ ** Description: Get my profile
+ * Method: GET
+ * Headers: { Authorization: Bearer {ac} }
+ */
+userRoute.get('/me', accessTokenValidator, wrapAsync(getMeController))
+
+/**
+  Description: Update profile
+  Path: '/me'
+  Method: patch
+  Headers: { Authorization: Bearer {ac} }
+  Body: {
+    name?: string
+    date_of_birth?: Date
+    bio?: string
+    location?: string
+    website?: string
+    username?: string
+    avatar?: string
+    cover_photo?: string
+*/
+userRoute.patch('/me', accessTokenValidator, updateMeValidator, wrapAsync(updateMeController))
 
 export default userRoute

@@ -52,3 +52,9 @@ export interface UpdateMeReqBody {
   avatar?: string;
   cover_photo?: string;
 }
+
+export interface ChangePasswordReqBody {
+  old_password: string;
+  password: string;
+  confirm_password: string;
+}

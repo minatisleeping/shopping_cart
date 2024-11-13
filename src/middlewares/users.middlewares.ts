@@ -295,3 +295,11 @@ export const updateMeValidator = validate(
     cover_photo: imageSchema
   }, ['body'])
 )
+
+export const changePasswordValidator = validate(
+  checkSchema({
+    old_password: passwordSchema,
+    password: passwordSchema,
+    confirm_password: confirmPasswordSchema
+  }, ['body'])
+)

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, UpdateMeReqBody, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
+import { ChangePasswordReqBody, ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, UpdateMeReqBody, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
 import usersService from '~/services/users.services';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ErrorWithStatus } from '~/models/Errors';
@@ -208,4 +208,21 @@ export const updateMeController = async (
   const user = await usersService.updateMe({ user_id, payload })
 
   res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.UPDATE_PROFILE_SUCCESS, user })
+}
+
+export const changePasswordController = async (
+  req: Request<ParamsDictionary, any, ChangePasswordReqBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { old_password, password } = req.body as ChangePasswordReqBody
+
+  await usersService.changePassword({
+    user_id,
+    old_password,
+    password
+  })
+
+  res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS })
 }

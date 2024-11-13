@@ -299,6 +299,28 @@ class UsersService {
       }
     )
   }
+
+  async changePassword({ user_id, old_password, password }: { user_id: string, old_password: string, password: string }) {
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(user_id),
+      password: hashPassword(old_password)
+    })
+
+    if (!user) {
+      throw new ErrorWithStatus({
+        status: StatusCodes.UNPROCESSABLE_ENTITY,
+        message: USERS_MESSAGES.USERNAME_ALREADY_EXISTS
+      })
+    }
+
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      [{ $set: {
+        password: hashPassword(password),
+        updated_at: '$$NOW'
+      } }]
+    )
+  }
 }
 
 const usersService = new UsersService()

@@ -34,6 +34,7 @@ export const USERS_MESSAGES = {
   LOGOUT_SUCCESS: 'Logout success!',
   GET_PROFILE_SUCCESS: 'Get profile success!',
   UPDATE_PROFILE_SUCCESS: 'Update profile success!',
+  CHANGE_PASSWORD_SUCCESS: 'Change password success!',
 
   //token
   ACCESS_TOKEN_IS_REQUIRED: 'Access token is required!',

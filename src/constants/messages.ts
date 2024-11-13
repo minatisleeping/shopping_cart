@@ -69,6 +69,7 @@ export const USERS_MESSAGES = {
   USERNAME_MUST_BE_A_STRING: 'Username must be a string!',
   USERNAME_LENGTH_MUST_BE_LESS_THAN_50: 'Username length must be less than 50!',
   USERNAME_ALREADY_EXISTS: 'Username already exists!',
+  USERNAME_IS_INVALID: 'Username must be a string and length must be 4 - 15, and contain only letters, numbers, and underscores, not only numbers',
   IMAGE_URL_MUST_BE_A_STRING: 'Image url must be a string',
   IMAGE_URL_LENGTH_MUST_BE_LESS_THAN_400: 'Image url length must be less than 400',
 } as const;

@@ -2,6 +2,8 @@ import express, { Request } from 'express'
 import { forgotPasswordController, getMeController, loginController, logoutController, registerController, resendVerifyEmailController, resetPasswordController, updateMeController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
 import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidator, updateMeValidator } from '~/middlewares/users.middlewares'
 import { wrapAsync } from '../utils/handlers';
+import { filterMiddleware } from './common.middleware';
+import { UpdateMeReqBody } from '~/models/requests/Users.request';
 
 const userRoute = express.Router()
 
@@ -106,6 +108,20 @@ userRoute.get('/me', accessTokenValidator, wrapAsync(getMeController))
     avatar?: string
     cover_photo?: string
 */
-userRoute.patch('/me', accessTokenValidator, updateMeValidator, wrapAsync(updateMeController))
+userRoute.patch('/me',
+  filterMiddleware<UpdateMeReqBody>([
+    'name',
+    'date_of_birth',
+    'bio',
+    'location',
+    'website',
+    'avatar',
+    'username',
+    'cover_photo'
+  ]),
+  accessTokenValidator,
+  updateMeValidator,
+  wrapAsync(updateMeController)
+)
 
 export default userRoute

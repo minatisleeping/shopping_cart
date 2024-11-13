@@ -202,18 +202,31 @@ class UsersService {
     
     if (user) {
       const user_id = user._id
-      const email_verify_token = await this.signForgotPasswordToken(user_id.toString())
+      const forgot_password_token = await this.signForgotPasswordToken(user_id.toString())
 
       await databaseService.users.updateOne(
         { _id: user_id },
-        [{ $set: { email_verify_token, updated_at: '$$NOW' } }],
+        [{ $set: { forgot_password_token, updated_at: '$$NOW' } }],
       )
 
-      console.log(`
-        🚀 ~ Nội dung Email xác thực bao gôm:
-          http://localhost:8000/reset-password/?forgot_password_token=${email_verify_token}
-      `)
+      console.log(`🚀 ~ Mô phỏng gửi link qua mail để đổi mật khẩu: http://localhost:8000/reset-password/?forgot_password_token=${forgot_password_token}`)
     }
+  }
+
+  async verifyForgotPasswordToken({ user_id, forgot_password_token }: { user_id: string, forgot_password_token: string }) {
+    const user = await databaseService.users.findOne({
+      _id: new ObjectId(user_id),
+      forgot_password_token
+    })
+
+    if (!user) {
+      throw new ErrorWithStatus({
+        status: StatusCodes.UNAUTHORIZED,
+        message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID
+      })
+    }
+
+    return user
   }
 }
 

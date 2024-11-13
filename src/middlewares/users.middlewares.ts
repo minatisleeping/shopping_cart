@@ -189,3 +189,29 @@ export const forgotPasswordValidator = validate(
     },
   })
 )
+
+export const forgotPasswordTokenValidator = validate(
+  checkSchema({
+    forgot_password_token: {
+      notEmpty: { errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED },
+      custom: {
+        options: async (value: string, { req }) => {
+          try {
+            const decoded_forgot_password_token = await verifyToken({
+              token: value,
+              secretOrPublicKey: env.JWT_SECRET_FORGOT_PASSWORD_TOKEN
+            })
+            ;(req as Request).decoded_forgot_password_token = decoded_forgot_password_token
+          } catch (error) {
+            throw new ErrorWithStatus({
+              status: StatusCodes.UNAUTHORIZED,
+              message: capitalize((error as JsonWebTokenError).message),
+            })
+          }
+
+          return true
+        }
+      }
+    },
+  }, ['body'])
+)

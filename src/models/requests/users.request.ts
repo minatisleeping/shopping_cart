@@ -28,6 +28,10 @@ export interface ForgotPasswordReqBody {
   email: string
 }
 
+export interface VerifyForgotPasswordTokenReqBody {
+  forgot_password_token: string
+}
+
 export interface VerifyEmailReqQuery extends ParsedQs {
   email_verify_token: string
 }

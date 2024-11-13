@@ -1,6 +1,6 @@
 import express, { Request } from 'express'
-import { forgotPasswordController, loginController, logoutController, registerController, resendVerifyEmailController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
-import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator } from '~/middlewares/users.middlewares'
+import { forgotPasswordController, loginController, logoutController, registerController, resendVerifyEmailController, resetPasswordController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
+import { accessTokenValidator, emailVerifyTokenValidator, forgotPasswordTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidator } from '~/middlewares/users.middlewares'
 import { wrapAsync } from '../utils/handlers';
 
 const userRoute = express.Router()
@@ -71,5 +71,17 @@ userRoute.post('/forgot-password', forgotPasswordValidator, wrapAsync(forgotPass
  * Body: { forgot_password_token: string }
  */
 userRoute.post('/verify-forgot-password-token', forgotPasswordTokenValidator, wrapAsync(verifyForgotPasswordTokenController))
+
+/**
+ ** Description: Reset password
+ * Check xem forgot password token còn đúng và còn hiệu lực không ?
+ * Method: POST
+ * Body: { 
+ *  password: string,
+ *  confirm_password: string,
+ *  forgot_password_token: string
+ * }
+ */
+userRoute.post('/reset-password', forgotPasswordTokenValidator, resetPasswordValidator, wrapAsync(resetPasswordController))
 
 export default userRoute

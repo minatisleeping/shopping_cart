@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
+import { ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, UpdateMeReqBody, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
 import usersService from '~/services/users.services';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ErrorWithStatus } from '~/models/Errors';
@@ -173,4 +173,39 @@ export const resetPasswordController = async (
   await usersService.resetPassword({ user_id, password })
 
   res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS })
+}
+
+export const getMeController = async (
+  req: Request<ParamsDictionary, any, any>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+
+  const user = await usersService.getMe(user_id)
+
+  res.status(StatusCodes.OK).json({ 
+    message: USERS_MESSAGES.GET_PROFILE_SUCCESS,
+    user
+  })
+}
+
+export const updateMeController = async (
+  req: Request<ParamsDictionary, any, UpdateMeReqBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const payload = req.body as UpdateMeReqBody
+
+  const isVerified = await usersService.checkEmailVerified(user_id)
+
+  if (!isVerified) {
+    throw new ErrorWithStatus({
+      status: StatusCodes.FORBIDDEN,
+      message: USERS_MESSAGES.USER_NOT_VERIFIED
+    })
+  }
+
+  const user = await usersService.updateMe({ user_id, payload })
+
+  res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.UPDATE_PROFILE_SUCCESS, user })
 }

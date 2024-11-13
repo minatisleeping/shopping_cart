@@ -1,6 +1,6 @@
 import User from '~/models/schemas/User.schema'
 import databaseService from './database.services'
-import { RegisterReqBody } from '~/models/requests/Users.request'
+import { RegisterReqBody, UpdateMeReqBody } from '~/models/requests/Users.request'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
@@ -87,6 +87,11 @@ class UsersService {
     }
 
     return user
+  }
+
+  async checkEmailVerified(user_id: string): Promise<boolean> {
+    const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+    return user?.verify === UserVerifyStatus.Verified
   }
 
   async findUserById(user_id: string) {
@@ -237,6 +242,60 @@ class UsersService {
         forgot_password_token: '',
         updated_at: '$$NOW'
       } }],
+    )
+  }
+
+  async getMe(user_id: string) {
+    const user = await databaseService.users.findOne(
+      { _id: new ObjectId(user_id) },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0
+        }
+      }
+    )
+
+    if (!user) {
+      throw new ErrorWithStatus({
+        status: StatusCodes.NOT_FOUND,
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      })
+    }
+
+    return user
+  }
+
+  async updateMe({ user_id, payload }: { user_id: string, payload: UpdateMeReqBody }) {
+    const _payload = payload.date_of_birth
+      ? { ...payload, date_of_birth: new Date(payload.date_of_birth) }
+      : payload
+
+    if (_payload.username) {
+      const user = await databaseService.users.findOne({ username: _payload.username })
+
+      if (user) {
+        throw new ErrorWithStatus({
+          status: StatusCodes.UNPROCESSABLE_ENTITY,
+          message: USERS_MESSAGES.USERNAME_ALREADY_EXISTS
+        })
+      }
+    }
+
+    return await databaseService.users.findOneAndUpdate(
+      { _id: new ObjectId(user_id) },
+      [{ $set: {
+        ..._payload,
+        updated_at: '$$NOW'
+      } }],
+      { returnDocument: 'after',
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0
+        }
+      }
     )
   }
 }

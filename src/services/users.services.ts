@@ -109,6 +109,7 @@ class UsersService {
     await databaseService.users.insertOne(
       new User({
         _id: user_id,
+        username: `user${user_id.toString()}`,
         email_verify_token,
         ...payload,
         password: hashPassword(payload.password),

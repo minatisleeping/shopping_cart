@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { capitalize } from 'lodash'
 import { USERS_MESSAGES } from '~/constants/messages'
+import { REGEX_USERNAME } from '~/constants/regex'
 import { env } from '~/environments/environments'
 import { ErrorWithStatus } from '~/models/Errors'
 import { TokenPayload } from '~/models/requests/Users.request'
@@ -279,11 +280,18 @@ export const updateMeValidator = validate(
       isLength: {
         options: { min: 1, max: 50 },
         errorMessage: USERS_MESSAGES.USERNAME_LENGTH_MUST_BE_LESS_THAN_50
-      }
+      },
+      custom: {
+        options: async (value: string) => {
+          if(!REGEX_USERNAME.test(value)) {
+            throw new Error(USERS_MESSAGES.USERNAME_IS_INVALID)
+          }
+
+          return true
+        }
+      },
     },
     avatar: imageSchema,
     cover_photo: imageSchema
-    },
-    ['body']
-  )
+  }, ['body'])
 )

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, TokenPayload, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
+import { ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
 import usersService from '~/services/users.services';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ErrorWithStatus } from '~/models/Errors';
@@ -159,4 +159,18 @@ export const verifyForgotPasswordTokenController = async (
   await usersService.verifyForgotPasswordToken({ user_id, forgot_password_token })
 
   res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_TOKEN_SUCCESS })
+}
+
+export const resetPasswordController = async (
+  req: Request<ParamsDictionary, any, ResetPasswordReqBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_forgot_password_token as TokenPayload
+  const { forgot_password_token, password } = req.body
+
+  await usersService.verifyForgotPasswordToken({ user_id, forgot_password_token })
+
+  await usersService.resetPassword({ user_id, password })
+
+  res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS })
 }

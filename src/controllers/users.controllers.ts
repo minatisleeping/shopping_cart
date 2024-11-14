@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { ChangePasswordReqBody, ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, UpdateMeReqBody, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
+import { ChangePasswordReqBody, ForgotPasswordReqBody, LoginReqBody, LogoutReqBody, RefreshTokenReqBody, RegisterReqBody, ResetPasswordReqBody, TokenPayload, UpdateMeReqBody, VerifyEmailReqQuery, VerifyForgotPasswordTokenReqBody } from '~/models/requests/Users.request';
 import usersService from '~/services/users.services';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ErrorWithStatus } from '~/models/Errors';
@@ -225,4 +225,20 @@ export const changePasswordController = async (
   })
 
   res.status(StatusCodes.OK).json({ message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS })
+}
+
+export const refreshTokenController = async (
+  req: Request<ParamsDictionary, any, RefreshTokenReqBody>,
+  res: Response
+) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { refresh_token } = req.body as RefreshTokenReqBody
+
+  await usersService.checkRefreshToken({ user_id, refresh_token })
+  const result = await usersService.refreshToken({ user_id, refresh_token })
+
+  res.status(StatusCodes.OK).json({
+    message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
+    result
+  })
 }

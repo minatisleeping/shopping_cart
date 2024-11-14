@@ -321,6 +321,21 @@ class UsersService {
       } }]
     )
   }
+
+  async refreshToken({ user_id, refresh_token }: { user_id: string, refresh_token: string }) {
+    const tokens = await this.signTokens(user_id)
+
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({
+        user_id: new ObjectId(user_id),
+        token: tokens.refresh_token
+      })
+    )
+
+    await databaseService.refreshTokens.deleteOne({ token: refresh_token })
+
+    return tokens
+  }
 }
 
 const usersService = new UsersService()

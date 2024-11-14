@@ -1,8 +1,8 @@
 import express, { Request } from 'express'
-import { changePasswordController, forgotPasswordController, getMeController, loginController, logoutController, registerController, resendVerifyEmailController, resetPasswordController, updateMeController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
+import { changePasswordController, forgotPasswordController, getMeController, loginController, logoutController, refreshTokenController, registerController, resendVerifyEmailController, resetPasswordController, updateMeController, verifyEmailTokenController, verifyForgotPasswordTokenController } from '~/controllers/users.controllers'
 import { accessTokenValidator, changePasswordValidator, emailVerifyTokenValidator, forgotPasswordTokenValidator, forgotPasswordValidator, loginValidator, refreshTokenValidator, registerValidator, resetPasswordValidator, updateMeValidator } from '~/middlewares/users.middlewares'
 import { wrapAsync } from '../utils/handlers';
-import { filterMiddleware } from './common.middleware';
+import { filterMiddleware } from '../middlewares/common.middleware';
 import { UpdateMeReqBody } from '~/models/requests/Users.request';
 
 const userRoute = express.Router()
@@ -136,5 +136,14 @@ userRoute.put(
   changePasswordValidator,
   wrapAsync(changePasswordController)
 )
+
+/**
+ ** Description: Refresh token
+ * Chức năng này dùng khi ac hết hạn, cần lấy về ac mới
+ * Method: POST
+ * Route: /refresh-token
+ * Body: { refresh_token: string }
+ */
+userRoute.post('/refresh-token', refreshTokenValidator, wrapAsync(refreshTokenController))
 
 export default userRoute
